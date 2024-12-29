@@ -1,13 +1,14 @@
+import json
 import os
 from uuid import uuid4
 from datetime import datetime, timedelta
-from fastapi import APIRouter, UploadFile, File, status, HTTPException
+from fastapi import APIRouter, UploadFile, File, status, HTTPException, Form
 
 import app.services.pdf as pdf_service
 from app.core.config import settings
 
 
-router = APIRouter()
+router = APIRouter(prefix='/pdf', tags=['pdf'])
 
 
 # TODO:
@@ -35,8 +36,8 @@ def cleanup_tempfiles():
 
 @router.get('/tempfiles', response_model=list[str])
 async def get_tempfiles():
-    file_names, _ = list_tempfiles()
-    return file_names
+    _, file_paths = list_tempfiles()
+    return file_paths
 
 
 @router.delete('/tempfiles', status_code=status.HTTP_204_NO_CONTENT)
@@ -48,7 +49,7 @@ async def delete_tempfiles():
                             detail="Failed to delete temp files.")
 
 
-@router.post('/convert/images', response_model=list[str])
+@router.post('/images', response_model=list[str])
 async def pdf_to_images(file: UploadFile = File(...)):
     if file.content_type != 'application/pdf':
         raise HTTPException(
@@ -72,3 +73,36 @@ async def pdf_to_images(file: UploadFile = File(...)):
         )
 
     return urls
+
+
+@router.post('/figures', response_model=list[str])
+async def extract_figures(
+    redaction_bboxes: str = Form(...),
+    figure_bboxes: str = Form(...),
+    file: UploadFile = File(...)
+):
+    if file.content_type != 'application/pdf':
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Invalid file type. Only PDF file allowed.'
+        )
+
+    try:
+        parsed_redaction_bboxes = json.loads(redaction_bboxes)
+        parsed_redaction_bboxes = {int(k): v for k, v in parsed_redaction_bboxes.items()}
+
+        parsed_figure_bboxes = json.loads(figure_bboxes)
+        parsed_figure_bboxes = {int(k): v for k, v in parsed_figure_bboxes.items()}
+
+        pdfbytes = await file.read()
+        doc = pdf_service.redact_doc(pdfbytes, parsed_redaction_bboxes, parsed_figure_bboxes)
+
+        random_str = uuid4().hex
+        docpath = f'{settings.TEMPFILE_ROOT_DIR}/{random_str}.pdf'
+        doc.save(docpath)
+        return [docpath]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail='Failed to extract figures from the pdf file: {str(e)}'
+        )
