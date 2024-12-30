@@ -77,10 +77,15 @@ async def pdf_to_images(file: UploadFile = File(...)):
 
 @router.post('/figures', response_model=list[str])
 async def extract_figures(
+    file: UploadFile = File(...),
     redaction_bboxes: str = Form(...),
     figure_bboxes: str = Form(...),
-    file: UploadFile = File(...)
+    del_page_start: int | None = Form(None),
+    del_page_end: int | None = Form(None),
+    del_pages_list: str | None = Form(None)
 ):
+    del_pages = json.loads(del_pages_list) if del_pages_list else None
+
     if file.content_type != 'application/pdf':
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -95,7 +100,9 @@ async def extract_figures(
         parsed_figure_bboxes = {int(k): v for k, v in parsed_figure_bboxes.items()}
 
         pdfbytes = await file.read()
-        doc = pdf_service.redact_doc(pdfbytes, parsed_redaction_bboxes, parsed_figure_bboxes)
+        doc = pdf_service.bytes_to_doc(pdfbytes)
+        doc = pdf_service.redact_doc(doc, parsed_redaction_bboxes, parsed_figure_bboxes)
+        doc = pdf_service.delete_pages(doc, del_page_start, del_page_end, del_pages)
 
         random_str = uuid4().hex
         docpath = f'{settings.TEMPFILE_ROOT_DIR}/{random_str}.pdf'
