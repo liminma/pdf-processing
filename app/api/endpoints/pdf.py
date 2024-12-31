@@ -59,10 +59,10 @@ async def pdf_to_images(file: UploadFile = File(...)):
 
     try:
         pdfbytes = await file.read()
-        urls = []
 
         random_str = uuid4().hex
-        for i, image in enumerate(pdf_service.doc_to_images(pdfbytes)):
+        urls = []
+        for i, image in enumerate(pdf_service.doc_to_images_gen(pdfbytes)):
             imagepath = f'{settings.TEMPFILE_ROOT_DIR}/{random_str}-p{i}.png'
             image.save(imagepath)
             urls.append(imagepath)
@@ -75,7 +75,7 @@ async def pdf_to_images(file: UploadFile = File(...)):
     return urls
 
 
-@router.post('/figures', response_model=list[str])
+@router.post('/figures', response_model=tuple[str, dict[int, list[tuple[str, str | None]]]])
 async def extract_figures(
     file: UploadFile = File(...),
     redaction_bboxes: str = Form(...),
@@ -101,13 +101,25 @@ async def extract_figures(
 
         pdfbytes = await file.read()
         doc = pdf_service.bytes_to_doc(pdfbytes)
+
+        random_str = uuid4().hex
+        extracted_figures = pdf_service.extract_figures(doc, parsed_figure_bboxes)
+        for k, v in extracted_figures.items():
+            for idx, pair in enumerate(v):
+                figure_path = f'{settings.TEMPFILE_ROOT_DIR}/{random_str}-page{k}-figure{idx}.png'
+                pair[0].save(figure_path)
+                pair[0] = figure_path
+                if pair[1]:
+                    caption_path = f'{settings.TEMPFILE_ROOT_DIR}/{random_str}-page{k}-caption{idx}.png'
+                    pair[1].save(caption_path)
+                    pair[1] = caption_path
+
         doc = pdf_service.redact_doc(doc, parsed_redaction_bboxes, parsed_figure_bboxes)
         doc = pdf_service.delete_pages(doc, del_page_start, del_page_end, del_pages)
 
-        random_str = uuid4().hex
         docpath = f'{settings.TEMPFILE_ROOT_DIR}/{random_str}.pdf'
         doc.save(docpath)
-        return [docpath]
+        return [docpath, extracted_figures]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

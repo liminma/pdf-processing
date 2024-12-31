@@ -2,14 +2,34 @@ import numpy as np
 import re
 import pymupdf
 from pymupdf import Document, Page
-from PIL import Image
+from PIL import Image, ImageOps
 
 
-def doc_to_images(pdfbytes: bytes, dpi: int = 96):
+def doc_to_images_gen(pdfbytes: bytes, dpi: int = 96):
     """A pdf page to image generator."""
     doc = bytes_to_doc(pdfbytes)
     for page in doc:
         yield page_to_image(page, dpi=dpi)
+
+
+def extract_figures(
+    doc: Document,
+    figure_bboxes: dict[int, list[tuple[list[int], list[int]]]]
+):
+    results = {}
+    for k, v in figure_bboxes.items():
+        page_image = page_to_image(doc[k])
+        figures = []
+        for pair in v:
+            figure = pad_border(page_image.crop(pair[0]))
+            if pair[1]:  # optional caption
+                caption = pad_border(page_image.crop(pair[1]))
+            else:
+                caption = None
+            figures.append([figure, caption])
+        results[k] = figures
+
+    return results
 
 
 def delete_pages(
@@ -132,3 +152,7 @@ def selected_pages(
 
     pages_to_process = list(filter(lambda x: x < total_pages, pages_to_process))
     return sorted(pages_to_process)
+
+
+def pad_border(image: Image.Image, border_width=10, border_color=(255, 255, 255)):
+    return ImageOps.expand(image, border=border_width, fill=border_color)
