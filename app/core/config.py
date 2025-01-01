@@ -3,9 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PROJECT_NAME = os.getenv('PROJECT_NAME', '')
-PROJECT_VERSION = os.getenv('PROJECT_VERSION', '')
-FILE_RETENTION_TIME: int = int(os.getenv('FILE_RETENTION_TIME', 60))  # seconds
+PROJECT_NAME: str = os.getenv('PROJECT_NAME', '')
+PROJECT_VERSION: str = os.getenv('PROJECT_VERSION', '')
+FILE_RETENTION_TIME: int = int(os.getenv('FILE_RETENTION_TIME', 3600))  # seconds
 TEMPFILE_ROOT_DIR: str = os.getenv('TEMPFILE_ROOT_DIR', 'static')
 CORS_ORIGINS: str = os.getenv('CORS_ORIGINS', '')
 
