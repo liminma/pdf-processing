@@ -10,23 +10,20 @@ This FastAPI application provides REST API endpoints for processing PDF files, i
 
 ```
 app
-├── __init__.py
 ├── main.py
-├── core
-│   ├── __init__.py
-│   └── config.py
 ├── api
-│   ├── endpoints
-│   │   ├── __init__.py
-│   │   ├── pdf.py
-│   │   └── heartbeat.py
-│   └── __init__.py
+│   └── endpoints
+│       ├── heartbeat.py
+│       └── pdf.py
+├── core
+│   └── config.py
 ├── schemas
-│   ├── __init__.py
-│   └── pdf.py
-└── services
-    ├── __init__.py
-    └── pdf_service.py
+│   └── pdf.py
+├── services
+│   └── pdf_service.py
+└── tests
+    ├── test_data
+    └── test_pdf.py
 ```
 
 ## Installation
@@ -34,8 +31,8 @@ app
 1. **Clone the repository:**
 
     ```bash
-    git clone <repository-url>
-    cd <repository-folder>
+    git clone git@github.com:liminma/pdf-processing.git
+    cd pdf-processing
     ```
 
 2. **Create a virtual environment and activate it:**
@@ -53,18 +50,21 @@ app
 
 4. **Set up environment variables:**
 
-  Copy the `.env.example` file to `.env`:
-  ```sh
-  cp .env.example .env
-  ```
-  Modify the environment variables in the .env file if needed:
-  ```env
-  PROJECT_NAME="PDF Processing Service"
-  PROJECT_VERSION=0.1.0
-  FILE_RETENTION_TIME=3600 # File retention time in seconds
-  TEMPFILE_ROOT_DIR=static
-  CORS_ORIGINS=["*"] # Update with specific origins if needed
-  ```
+    copy the `.env.example` file to `.env`:
+
+    ```sh
+    cp .env.example .env
+    ```
+
+    modify the environment variables in the .env file if needed:
+
+    ```env
+    PROJECT_NAME="PDF Processing Service"
+    PROJECT_VERSION=0.1.0
+    FILE_RETENTION_TIME=3600 # File retention time in seconds
+    TEMPFILE_ROOT_DIR=static
+    CORS_ORIGINS=["*"] # Update with specific origins if needed
+    ```
 
 5. **Run the application:**
 
@@ -88,11 +88,11 @@ app
 
 #### Convert PDF to Images
 - **POST /pdf/images**
-  - Upload a PDF file and get a list of image URLs for each page.
+  - Upload a PDF file and get a list of image URLs for pages.
 
 #### Extract Figures and Captions
 - **POST /pdf/figures**
-  - Upload a PDF file with additional bounding box parameters to extract and redact content.
+  - Upload a PDF file with additional bounding boxes to extract and redact content.
 
 #### List Temporary Files
 - **GET /pdf/tempfiles**
@@ -118,4 +118,4 @@ Generated files are served through static routes. For example, if a file is save
 
 ## About license
 
-This project is licensed under the AGPL-3.0 license because it depends on the AGPL-3.0-licensed PyMuPDF library.
+This project is licensed under the AGPL-3.0 license because it depends on the AGPL-3.0-licensed `PyMuPDF` library.

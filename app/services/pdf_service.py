@@ -262,8 +262,5 @@ class PDFService:
         if pages_list:
             pages_to_process.update(pages_list)
 
-        if not pages_to_process:
-            raise ValueError("Invalid page selection.")
-
         pages_to_process = list(filter(lambda x: x < total_pages, pages_to_process))
         return sorted(pages_to_process)
