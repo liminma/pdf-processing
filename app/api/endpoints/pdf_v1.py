@@ -13,8 +13,8 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, UploadFile, File, status, HTTPException, Form
 
 from app.core.config import settings
-from app.services.pdf_service import PDFService
-from app.schemas.pdf import FiguresResponse
+from app.services.pdf_service_v1 import PDFService
+from app.schemas.pdf_v1 import FiguresResponse
 
 
 router = APIRouter(prefix='/pdf', tags=['pdf'])

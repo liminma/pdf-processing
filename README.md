@@ -14,13 +14,13 @@ app
 ├── api
 │   └── endpoints
 │       ├── heartbeat.py
-│       └── pdf.py
+│       └── pdf_v1.py
 ├── core
 │   └── config.py
 ├── schemas
-│   └── pdf.py
+│   └── pdf_v1.py
 ├── services
-│   └── pdf_service.py
+│   └── pdf_service_v1.py
 └── tests
     ├── test_data
     └── test_pdf.py
@@ -119,3 +119,9 @@ Generated files are served through static routes. For example, if a file is save
 ## About license
 
 This project is licensed under the AGPL-3.0 license because it depends on the AGPL-3.0-licensed `PyMuPDF` library.
+
+
+ToDo:
+- versioning
+  - FastAPI Versioning https://medium.com/arionkoder-engineering/fastapi-versioning-e9f86ace52ca
+    

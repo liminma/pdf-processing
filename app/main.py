@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.api.endpoints import heartbeat, pdf
+from app.api.endpoints import heartbeat, pdf_v1
 from app.core.config import settings
 
 
@@ -25,7 +25,8 @@ if settings.CORS_ORIGINS:  # Only add CORS middleware if origins are defined
 
 # Include routers for API endpoints
 app.include_router(heartbeat.router)
-app.include_router(pdf.router)
+app.include_router(pdf_v1.router, prefix='/v1')
+app.include_router(pdf_v1.router, prefix='/latest')
 
 os.makedirs(settings.TEMPFILE_ROOT_DIR, exist_ok=True)
 

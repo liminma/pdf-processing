@@ -5,14 +5,14 @@ from fastapi import FastAPI, status
 from fastapi.testclient import TestClient
 
 from app.core.config import settings
-from app.api.endpoints import pdf, heartbeat
+from app.api.endpoints import heartbeat, pdf_v1
 
 
 @pytest.fixture(scope='module')
 def app():
     test_app = FastAPI(title=settings.PROJECT_NAME,
                        version=settings.PROJECT_VERSION)
-    test_app.include_router(pdf.router)
+    test_app.include_router(pdf_v1.router)
     test_app.include_router(heartbeat.router)
     yield test_app
 
