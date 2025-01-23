@@ -87,19 +87,19 @@ app
 ### PDF Endpoints
 
 #### Convert PDF to Images
-- **POST /pdf/images**
+- **POST /v1/pdf/images**
   - Upload a PDF file and get a list of image URLs for pages.
 
 #### Extract Figures and Captions
-- **POST /pdf/figures**
+- **POST /v1/pdf/figures**
   - Upload a PDF file with additional bounding boxes to extract and redact content.
 
 #### List Temporary Files
-- **GET /pdf/tempfiles**
+- **GET /v1/pdf/tempfiles**
   - Retrieve a list of temporary files older than the configured retention time.
 
 #### Delete Temporary Files
-- **DELETE /pdf/tempfiles**
+- **DELETE /v1/pdf/tempfiles**
   - Remove all temporary files older than the retention time.
 
 ## Configuration
@@ -119,9 +119,3 @@ Generated files are served through static routes. For example, if a file is save
 ## About license
 
 This project is licensed under the AGPL-3.0 license because it depends on the AGPL-3.0-licensed `PyMuPDF` library.
-
-
-ToDo:
-- versioning
-  - FastAPI Versioning https://medium.com/arionkoder-engineering/fastapi-versioning-e9f86ace52ca
-    
